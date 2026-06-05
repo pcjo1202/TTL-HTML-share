@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { hashPassword, verifyPassword } from "./password";
+import { hashPassword, verifyPassword } from "@/lib/password";
 
 describe("password", () => {
   it("같은 비밀번호라도 매번 다른 salt/hash를 만든다", () => {

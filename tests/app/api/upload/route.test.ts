@@ -8,7 +8,7 @@ vi.mock("@/lib/ratelimit", () => ({
   clientIp: () => "1.2.3.4",
 }));
 
-import { POST } from "./route";
+import { POST } from "@/app/api/upload/route";
 
 function formReq(fields: Record<string, string>, file?: { name: string; content: string; size?: number }) {
   const fd = new FormData();

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isValidTtl, computeExpiresAt, isExpired, TTL_DURATIONS } from "./ttl";
+import { isValidTtl, computeExpiresAt, isExpired, TTL_DURATIONS } from "@/lib/ttl";
 
 describe("ttl", () => {
   it("유효한 옵션만 통과시킨다", () => {

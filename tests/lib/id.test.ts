@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateId } from "./id";
+import { generateId } from "@/lib/id";
 
 describe("generateId", () => {
   it("길이가 10인 ID를 만든다", () => {

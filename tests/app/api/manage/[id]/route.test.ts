@@ -10,7 +10,7 @@ vi.mock("@/lib/password", () => ({
   verifyPassword: (pw: string) => pw === "correct",
 }));
 
-import { POST } from "./route";
+import { POST } from "@/app/api/manage/[id]/route";
 
 const ctx = (id: string) => ({ params: Promise.resolve({ id }) });
 const body = (b: unknown) =>

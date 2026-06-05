@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const mocks = vi.hoisted(() => ({ sweepExpired: vi.fn(async () => ["a", "b"]) }));
 vi.mock("@/lib/store", () => mocks);
 
-import { GET } from "./route";
+import { GET } from "@/app/api/cron/sweep/route";
 
 beforeEach(() => {
   process.env.CRON_SECRET = "secret";

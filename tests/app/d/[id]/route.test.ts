@@ -6,7 +6,7 @@ vi.mock("@/lib/store", () => mocks);
 const fetchMock = vi.fn(async () => new Response("<h1>doc</h1>", { headers: { "content-type": "text/html" } }));
 vi.stubGlobal("fetch", fetchMock);
 
-import { GET } from "./route";
+import { GET } from "@/app/d/[id]/route";
 
 const ctx = (id: string) => ({ params: Promise.resolve({ id }) });
 

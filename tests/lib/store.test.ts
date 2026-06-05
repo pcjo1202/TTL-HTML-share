@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const store = new Map<string, unknown>();
 const zset = new Map<string, number>();
 
-vi.mock("./redis", () => ({
+vi.mock("@/lib/redis", () => ({
   redis: {
     set: vi.fn(async (k: string, v: unknown) => void store.set(k, v)),
     get: vi.fn(async (k: string) => store.get(k) ?? null),
@@ -30,7 +30,7 @@ vi.mock("@vercel/blob", () => ({
   del: vi.fn(async () => undefined),
 }));
 
-import { createDoc, getDoc, incrementViews, extendDoc, deleteDoc, sweepExpired } from "./store";
+import { createDoc, getDoc, incrementViews, extendDoc, deleteDoc, sweepExpired } from "@/lib/store";
 
 beforeEach(() => {
   store.clear();
