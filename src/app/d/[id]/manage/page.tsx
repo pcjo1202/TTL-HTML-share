@@ -1,6 +1,8 @@
 "use client";
 
 import { use, useState } from "react";
+import { toast } from "sonner";
+import { clientErrorMessage } from "@/lib/error-message";
 
 export default function ManagePage({
   params,
@@ -9,18 +11,23 @@ export default function ManagePage({
 }) {
   const { id } = use(params);
   const [password, setPassword] = useState("");
-  const [msg, setMsg] = useState<string | null>(null);
 
   async function run(action: "extend" | "delete", ttl?: string) {
-    setMsg(null);
-    const res = await fetch(`/api/manage/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password, action, ttl }),
-    });
-    const json = await res.json();
-    if (!res.ok) return setMsg(json.error ?? "오류가 발생했습니다.");
-    setMsg(action === "delete" ? "삭제되었습니다." : "유효기간이 갱신되었습니다.");
+    try {
+      const res = await fetch(`/api/manage/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password, action, ttl }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(clientErrorMessage({ status: res.status, serverMessage: json?.error }));
+        return;
+      }
+      toast.success(action === "delete" ? "삭제되었습니다" : "유효기간이 연장되었습니다");
+    } catch {
+      toast.error(clientErrorMessage({ networkError: true }));
+    }
   }
 
   return (
@@ -52,8 +59,6 @@ export default function ManagePage({
       >
         지금 삭제
       </button>
-
-      {msg && <p className="mt-4 text-center text-sm text-ink-2">{msg}</p>}
     </main>
   );
 }
