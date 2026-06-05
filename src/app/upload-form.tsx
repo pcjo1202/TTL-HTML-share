@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
+import { clientErrorMessage } from "@/lib/error-message";
 
 const TTLS = [
   { v: "1d", label: "1일" },
@@ -15,23 +17,37 @@ export default function UploadForm() {
   const [password, setPassword] = useState("");
   const [ttl, setTtl] = useState("7d");
   const [result, setResult] = useState<{ url: string } | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function submit() {
-    setError(null);
-    if (!file || !name || !password) return setError("파일·이름·비밀번호를 입력하세요.");
+    if (!file || !name || !password) {
+      toast.error("파일·이름·비밀번호를 입력하세요.");
+      return;
+    }
     setBusy(true);
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("name", name);
-    fd.append("password", password);
-    fd.append("ttl", ttl);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const json = await res.json();
-    setBusy(false);
-    if (!res.ok) return setError(json.error ?? "업로드 실패");
-    setResult({ url: json.url });
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("name", name);
+      fd.append("password", password);
+      fd.append("ttl", ttl);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(clientErrorMessage({ status: res.status, serverMessage: json?.error }));
+        return;
+      }
+      setResult({ url: json.url });
+    } catch {
+      toast.error(clientErrorMessage({ networkError: true }));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function copyLink(url: string) {
+    await navigator.clipboard.writeText(url);
+    toast.success("링크를 복사했습니다");
   }
 
   if (result) {
@@ -40,7 +56,7 @@ export default function UploadForm() {
         <p className="text-center text-lg font-bold">✓ 링크가 생성되었습니다</p>
         <div className="mt-4 flex gap-2">
           <input readOnly value={result.url} className="flex-1 rounded-xl border border-line bg-bg-2 px-3 py-2 font-mono text-sm" />
-          <button onClick={() => navigator.clipboard.writeText(result.url)} className="rounded-xl bg-toss-blue px-4 font-semibold text-white">복사</button>
+          <button onClick={() => copyLink(result.url)} className="rounded-xl bg-toss-blue px-4 font-semibold text-white">복사</button>
         </div>
         <div className="mt-3 flex justify-center gap-2 text-sm">
           <a href={result.url} target="_blank" className="rounded-lg bg-bg-2 px-3 py-2">↗ 새 탭에서 열기</a>
@@ -72,7 +88,6 @@ export default function UploadForm() {
         <button onClick={submit} disabled={busy} className="mt-2 rounded-xl bg-toss-blue py-3 font-semibold text-white disabled:opacity-50">
           {busy ? "생성 중…" : "링크 생성하기"}
         </button>
-        {error && <p className="text-sm text-toss-red">{error}</p>}
       </div>
     </div>
   );
