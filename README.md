@@ -1,36 +1,24 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TTL HTML Share
 
-## Getting Started
+단일 HTML 파일을 올리면 즉시 공유 링크가 생성되고, 지정한 TTL이 지나면 자동 만료됩니다.
 
-First, run the development server:
+## 스택
+Next.js (App Router) · Tailwind CSS 4 · Vercel Blob · Upstash Redis · Vitest
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 로컬 실행
+1. `npm install`
+2. `.env.example`를 `.env.local`로 복사 후 값 채우기
+3. `npm run dev`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 테스트
+`npm run test`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 배포 (Vercel)
+1. GitHub 저장소를 Vercel 프로젝트로 임포트
+2. Storage 탭에서 **Blob** 생성/연동 → `BLOB_READ_WRITE_TOKEN` 자동 주입
+3. Marketplace에서 **Upstash Redis** 연동 → `UPSTASH_REDIS_REST_*` 자동 주입
+4. `CRON_SECRET` 환경변수 추가
+5. 개인 도메인 연결 (Settings > Domains)
+6. `vercel.ts`의 cron이 매일 03:00에 만료 문서를 청소
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> 모든 의존성은 `@latest`로 유지한다. 버전을 고정하지 않는다.
