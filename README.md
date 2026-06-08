@@ -38,19 +38,16 @@ GitHub 저장소(`pcjo1202/TTL-HTML-share`)를 Vercel에 임포트합니다.
 **Storage** 탭(또는 [Marketplace](https://vercel.com/marketplace/upstash)) → **Upstash** → **Redis** 데이터베이스를 생성하고 프로젝트에 연결합니다.
 - 문서: <https://upstash.com/docs/redis/howto/vercelintegration>
 
-> ⚠️ **환경변수 이름 주의 (중요)**
-> 본 앱은 `Redis.fromEnv()`를 사용하므로 **정확히** `UPSTASH_REDIS_REST_URL` 과 `UPSTASH_REDIS_REST_TOKEN` 이 필요합니다.
-> 연동 방식에 따라 Vercel이 `KV_REST_API_URL` / `KV_REST_API_TOKEN` 같은 **다른 이름**으로 주입할 수 있습니다. 그 경우 둘 중 하나로 해결하세요:
-> 1. 프로젝트 환경변수에 `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` 을 같은 값으로 **추가**, 또는
-> 2. `src/lib/redis.ts`를 명시 초기화로 변경:
+> ℹ️ **환경변수 이름 안내**
+> 연동 방식에 따라 Vercel이 `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` 또는 `KV_REST_API_URL` / `KV_REST_API_TOKEN` 중 하나로 주입할 수 있습니다.
+> 본 앱의 `src/lib/redis.ts`는 **두 이름을 모두 허용**하므로 어느 쪽으로 주입되든 그대로 동작합니다(별도 작업 불필요).
 > ```ts
-> import { Redis } from "@upstash/redis";
 > export const redis = new Redis({
 >   url: process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL!,
 >   token: process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN!,
 > });
 > ```
-> 배포 후 실제 주입된 이름은 Vercel → Settings → Environment Variables에서 확인할 수 있습니다.
+> 실제 주입된 이름은 Vercel → Settings → Environment Variables에서 확인할 수 있습니다.
 
 ### 4. CRON_SECRET 설정 (만료 청소 cron 보호)
 Vercel → Settings → **Environment Variables** 에 `CRON_SECRET`을 추가합니다(16자 이상 랜덤 문자열 권장).
