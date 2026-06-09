@@ -167,4 +167,14 @@ describe("store", () => {
   it("빈 인덱스에서 listDocs는 빈 배열", async () => {
     expect(await listDocs(1000)).toEqual([]);
   });
+
+  it("listDocs는 조회수를 반영한다", async () => {
+    const { id } = await createDoc(
+      { name: "x", html: "<p/>", password: "pw", ttl: "never" },
+      0,
+    );
+    await incrementViews(id);
+    const [d] = await listDocs(1000);
+    expect(d.views).toBe(1);
+  });
 });

@@ -2,7 +2,7 @@ import { put, del } from "@vercel/blob";
 import { redis } from "./redis";
 import { generateId } from "./id";
 import { hashPassword } from "./password";
-import { computeExpiresAt, type TtlOption } from "./ttl";
+import { computeExpiresAt, isExpired, type TtlOption } from "./ttl";
 
 export interface DocRecord {
   id: string;
@@ -115,7 +115,7 @@ export async function listDocs(now: number): Promise<DocSummary[]> {
   const out: DocSummary[] = [];
   records.forEach((record, i) => {
     if (!record) return;
-    if (record.expiresAt !== "never" && now > record.expiresAt) return;
+    if (isExpired(record.expiresAt, now)) return;
     out.push({
       id: record.id,
       name: record.name,
