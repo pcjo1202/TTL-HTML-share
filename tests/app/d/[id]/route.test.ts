@@ -94,6 +94,13 @@ describe("POST /d/[id]", () => {
     expect(res.headers.get("set-cookie")).toContain("SameSite=Lax");
   });
 
+  it("잠금 없는 문서에 POST하면 303으로 리다이렉트한다", async () => {
+    mocks.getDoc.mockResolvedValueOnce({ blobUrl: "https://blob/x", expiresAt: "never" });
+    const res = await POST(pwReq("x", "whatever"), ctx("x"));
+    expect(res.status).toBe(303);
+    expect(res.headers.get("location")).toBe("/d/x");
+  });
+
   it("레이트리밋 초과 시 429를 반환한다", async () => {
     const { unlockRatelimit } = await import("@/lib/ratelimit");
     vi.mocked(unlockRatelimit.limit).mockResolvedValueOnce({ success: false } as Awaited<ReturnType<typeof unlockRatelimit.limit>>);

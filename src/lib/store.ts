@@ -33,6 +33,7 @@ export async function createDoc(
   const { hash, salt } = hashPassword(input.password);
   const blob = await put(`docs/${id}.html`, input.html, {
     access: "public",
+    addRandomSuffix: true,
     contentType: "text/html; charset=utf-8",
   });
   const expiresAt = computeExpiresAt(input.ttl, now);
