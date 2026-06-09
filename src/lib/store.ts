@@ -12,6 +12,8 @@ export interface DocRecord {
   blobUrl: string;
   createdAt: number;
   expiresAt: number | "never";
+  viewPasswordHash?: string;
+  viewSalt?: string;
 }
 
 export interface DocView extends DocRecord {
@@ -24,7 +26,7 @@ const docKey = (id: string) => `doc:${id}`;
 const viewsKey = (id: string) => `views:${id}`;
 
 export async function createDoc(
-  input: { name: string; html: string; password: string; ttl: TtlOption },
+  input: { name: string; html: string; password: string; ttl: TtlOption; viewPassword?: string },
   now: number,
 ): Promise<{ id: string; expiresAt: number | "never" }> {
   const id = generateId();
@@ -43,6 +45,11 @@ export async function createDoc(
     createdAt: now,
     expiresAt,
   };
+  if (input.viewPassword) {
+    const view = hashPassword(input.viewPassword);
+    record.viewPasswordHash = view.hash;
+    record.viewSalt = view.salt;
+  }
   await redis.set(docKey(id), record);
   await redis.set(viewsKey(id), 0);
   await redis.zadd(DOCS_INDEX, { score: now, member: id });
@@ -105,6 +112,7 @@ export interface DocSummary {
   createdAt: number;
   expiresAt: number | "never";
   views: number;
+  isLocked: boolean;
 }
 
 export async function listDocs(now: number): Promise<DocSummary[]> {
@@ -122,6 +130,7 @@ export async function listDocs(now: number): Promise<DocSummary[]> {
       createdAt: record.createdAt,
       expiresAt: record.expiresAt,
       views: viewCounts[i] ?? 0,
+      isLocked: record.viewPasswordHash != null,
     });
   });
   return out;
