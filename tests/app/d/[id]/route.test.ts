@@ -90,5 +90,18 @@ describe("POST /d/[id]", () => {
     expect(res.headers.get("location")).toBe("/d/x");
     expect(res.headers.get("set-cookie")).toContain(`${unlockCookieName("x")}=`);
     expect(res.headers.get("set-cookie")).toContain("HttpOnly");
+    expect(res.headers.get("set-cookie")).toContain("Secure");
+    expect(res.headers.get("set-cookie")).toContain("SameSite=Lax");
+  });
+
+  it("레이트리밋 초과 시 429를 반환한다", async () => {
+    const { unlockRatelimit } = await import("@/lib/ratelimit");
+    vi.mocked(unlockRatelimit.limit).mockResolvedValueOnce({ success: false } as Awaited<ReturnType<typeof unlockRatelimit.limit>>);
+    mocks.getDoc.mockResolvedValueOnce({
+      blobUrl: "https://blob/x", expiresAt: "never",
+      viewPasswordHash: lockView.hash, viewSalt: lockView.salt,
+    });
+    const res = await POST(pwReq("x", "open123"), ctx("x"));
+    expect(res.status).toBe(429);
   });
 });
