@@ -25,9 +25,13 @@ function dday(expiresAt: number | "never", now: number): string {
   return days <= 0 ? "곧 만료" : `D-${days}`;
 }
 
-export default async function DocsPage() {
+async function loadDocs() {
   const now = Date.now();
-  const docs = await listDocs(now);
+  return { now, docs: await listDocs(now) };
+}
+
+export default async function DocsPage() {
+  const { now, docs } = await loadDocs();
 
   return (
     <>
@@ -38,7 +42,7 @@ export default async function DocsPage() {
 
         {docs.length === 0 ? (
           <div className="mt-8 rounded-[20px] bg-white p-10 text-center text-ink-3 shadow-sm">
-            아직 등록된 문서가 없습니다.
+            아직 등록된 문서가 없습니다
             <div className="mt-3">
               <Link href="/" className="font-semibold text-toss-blue">
                 문서 올리러 가기 →
@@ -53,6 +57,7 @@ export default async function DocsPage() {
                   <a
                     href={`/d/${d.id}`}
                     target="_blank"
+                    rel="noreferrer"
                     className="truncate font-semibold text-ink hover:text-toss-blue"
                   >
                     {d.name}
