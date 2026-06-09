@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import TabNav from "../tab-nav";
 import { listDocs } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
@@ -34,52 +33,49 @@ export default async function DocsPage() {
   const { now, docs } = await loadDocs();
 
   return (
-    <>
-      <TabNav />
-      <main className="mx-auto max-w-2xl px-5 pt-8 pb-12">
-        <h1 className="text-2xl font-bold">문서 목록</h1>
-        <p className="mt-1 text-ink-3">등록된 문서 {docs.length}개</p>
+    <main className="mx-auto max-w-2xl px-5 pt-8 pb-12">
+      <h1 className="text-2xl font-bold">문서 목록</h1>
+      <p className="mt-1 text-ink-3">등록된 문서 {docs.length}개</p>
 
-        {docs.length === 0 ? (
-          <div className="mt-8 rounded-[20px] bg-white p-10 text-center text-ink-3 shadow-sm">
-            아직 등록된 문서가 없습니다
-            <div className="mt-3">
-              <Link href="/" className="font-semibold text-toss-blue">
-                문서 올리러 가기 →
-              </Link>
-            </div>
+      {docs.length === 0 ? (
+        <div className="mt-8 rounded-card bg-white p-10 text-center text-ink-3 shadow-card">
+          아직 등록된 문서가 없습니다
+          <div className="mt-3">
+            <Link href="/" className="font-semibold text-toss-blue">
+              문서 올리러 가기 →
+            </Link>
           </div>
-        ) : (
-          <ul className="mt-6 flex flex-col gap-2">
-            {docs.map((d) => (
-              <li key={d.id} className="rounded-2xl bg-white p-4 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <a
-                    href={`/d/${d.id}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex min-w-0 items-center gap-1.5 truncate font-semibold text-ink hover:text-toss-blue"
-                  >
-                    {d.isLocked && <span title="열람 잠금" aria-label="열람 잠금">🔒</span>}
-                    <span className="truncate">{d.name}</span>
-                  </a>
-                  <Link
-                    href={`/d/${d.id}/manage`}
-                    className="shrink-0 rounded-lg bg-bg-2 px-3 py-1.5 text-xs font-medium text-ink-2"
-                  >
-                    관리
-                  </Link>
-                </div>
-                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-3">
-                  <span>등록 {fmtDate(d.createdAt)}</span>
-                  <span>만료 {dday(d.expiresAt, now)}</span>
-                  <span>조회 {d.views}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </main>
-    </>
+        </div>
+      ) : (
+        <ul className="mt-6 flex flex-col gap-2">
+          {docs.map((d) => (
+            <li key={d.id} className="rounded-2xl bg-white p-4 shadow-card">
+              <div className="flex items-center justify-between gap-3">
+                <a
+                  href={`/d/${d.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex min-w-0 items-center gap-1.5 truncate font-semibold text-ink hover:text-toss-blue"
+                >
+                  {d.isLocked && <span title="열람 잠금" aria-label="열람 잠금">🔒</span>}
+                  <span className="truncate">{d.name}</span>
+                </a>
+                <Link
+                  href={`/d/${d.id}/manage`}
+                  className="shrink-0 rounded-lg bg-bg-2 px-3 py-1.5 text-xs font-medium text-ink-2"
+                >
+                  관리
+                </Link>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-3">
+                <span>등록 {fmtDate(d.createdAt)}</span>
+                <span>만료 {dday(d.expiresAt, now)}</span>
+                <span>조회 {d.views}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </main>
   );
 }
