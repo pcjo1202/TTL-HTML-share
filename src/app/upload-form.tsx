@@ -115,7 +115,7 @@ export default function UploadForm() {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="flex flex-col gap-4">
       <input ref={fileInputRef} type="file" accept="text/html,.html" className="hidden" onChange={(e) => pickFile(e.target.files?.[0] ?? null)} />
 
       {file ? (
