@@ -12,6 +12,7 @@
   --color-bg-2: #f2f4f6;
   --font-sans: "Pretendard", system-ui, -apple-system, sans-serif;
   --radius-card: 20px;
+  --shadow-card: 0 8px 24px rgba(16, 24, 40, 0.08);
 }
 
 html, body {
@@ -19,3 +20,19 @@ html, body {
   color: var(--color-ink);
   font-family: var(--font-sans);
 }
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes sheet {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.animate-pop { animation: pop 150ms ease-out; }
+.animate-fade { animation: fade 150ms ease-out; }
+.animate-sheet { animation: sheet 200ms ease-out; }
