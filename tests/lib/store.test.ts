@@ -177,4 +177,35 @@ describe("store", () => {
     const [d] = await listDocs(1000);
     expect(d.views).toBe(1);
   });
+
+  it("viewPassword를 주면 열람 해시를 저장한다", async () => {
+    const { id } = await createDoc(
+      { name: "x", html: "<p/>", password: "pw", ttl: "never", viewPassword: "open123" },
+      0,
+    );
+    const doc = await getDoc(id);
+    expect(doc?.viewPasswordHash).toBeTruthy();
+    expect(doc?.viewSalt).toBeTruthy();
+  });
+
+  it("viewPassword가 없으면 열람 해시가 없다", async () => {
+    const { id } = await createDoc(
+      { name: "x", html: "<p/>", password: "pw", ttl: "never" },
+      0,
+    );
+    const doc = await getDoc(id);
+    expect(doc?.viewPasswordHash).toBeUndefined();
+  });
+
+  it("listDocs는 isLocked를 노출하되 해시는 숨긴다", async () => {
+    await createDoc({ name: "locked", html: "<p/>", password: "pw", ttl: "never", viewPassword: "open" }, 0);
+    await createDoc({ name: "open", html: "<p/>", password: "pw", ttl: "never" }, 1);
+    const list = await listDocs(1000);
+    const locked = list.find((d) => d.name === "locked");
+    const open = list.find((d) => d.name === "open");
+    expect(locked?.isLocked).toBe(true);
+    expect(open?.isLocked).toBe(false);
+    expect(locked).not.toHaveProperty("viewPasswordHash");
+    expect(locked).not.toHaveProperty("viewSalt");
+  });
 });

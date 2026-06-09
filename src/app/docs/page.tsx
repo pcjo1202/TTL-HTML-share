@@ -58,9 +58,10 @@ export default async function DocsPage() {
                     href={`/d/${d.id}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="truncate font-semibold text-ink hover:text-toss-blue"
+                    className="flex min-w-0 items-center gap-1.5 truncate font-semibold text-ink hover:text-toss-blue"
                   >
-                    {d.name}
+                    {d.isLocked && <span title="열람 잠금" aria-label="열람 잠금">🔒</span>}
+                    <span className="truncate">{d.name}</span>
                   </a>
                   <Link
                     href={`/d/${d.id}/manage`}
