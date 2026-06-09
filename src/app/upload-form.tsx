@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type DragEvent } from "react";
 import { toast } from "sonner";
 import { clientErrorMessage } from "@/lib/error-message";
+import { htmlFileError, MAX_UPLOAD_BYTES } from "@/lib/upload-file";
 
 const TTLS = [
   { v: "1d", label: "1일" },
@@ -18,6 +19,7 @@ export default function UploadForm() {
   const [ttl, setTtl] = useState("7d");
   const [result, setResult] = useState<{ url: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   async function submit() {
     if (!file || !name || !password) {
@@ -50,6 +52,19 @@ export default function UploadForm() {
     toast.success("링크를 복사했습니다");
   }
 
+  function handleDrop(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setIsDragging(false);
+    const dropped = event.dataTransfer.files[0];
+    if (!dropped) return;
+    const error = htmlFileError(dropped, MAX_UPLOAD_BYTES);
+    if (error) {
+      toast.error(error);
+      return;
+    }
+    setFile(dropped);
+  }
+
   if (result) {
     return (
       <div className="rounded-[20px] bg-white p-6 shadow-sm">
@@ -72,7 +87,17 @@ export default function UploadForm() {
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <label className="flex min-h-[160px] cursor-pointer items-center justify-center rounded-[20px] border-2 border-dashed border-line bg-white text-center text-sm text-ink-3">
+      <label
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
+        onDragLeave={() => setIsDragging(false)}
+        onDrop={handleDrop}
+        className={`flex min-h-[160px] cursor-pointer items-center justify-center rounded-[20px] border-2 border-dashed text-center text-sm text-ink-3 ${
+          isDragging ? "border-toss-blue bg-[#eef4ff]" : "border-line bg-white"
+        }`}
+      >
         <input type="file" accept="text/html,.html" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
         {file ? <span className="font-medium text-ink">{file.name}</span> : <span>⬆️ HTML 파일을 끌어다 놓거나 클릭<br />(최대 10MB)</span>}
       </label>
