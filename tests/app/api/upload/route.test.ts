@@ -1,8 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 
-vi.mock("@/lib/store", () => ({
-  createDoc: vi.fn(async () => ({ id: "abc1234567", expiresAt: 1000 })),
-}));
+const storeMock = vi.hoisted(() => ({ createDoc: vi.fn(async () => ({ id: "abc1234567", expiresAt: 1000 })) }));
+vi.mock("@/lib/store", () => storeMock);
 vi.mock("@/lib/ratelimit", () => ({
   uploadRatelimit: { limit: vi.fn(async () => ({ success: true })) },
   clientIp: () => "1.2.3.4",
@@ -44,5 +43,23 @@ describe("POST /api/upload", () => {
       formReq({ name: "x", password: "pw", ttl: "7d" }, { name: "big.html", content: "x", size: 11 * 1024 * 1024 }),
     );
     expect(res.status).toBe(413);
+  });
+
+  it("잠금 켜고 열람 비번이 있으면 createDoc에 viewPassword를 전달한다", async () => {
+    const res = await POST(
+      formReq({ name: "x", password: "pw", ttl: "7d", lock: "on", viewPassword: "open123" }, { name: "a.html", content: "<h1/>" }),
+    );
+    expect(res.status).toBe(200);
+    expect(storeMock.createDoc).toHaveBeenCalledWith(
+      expect.objectContaining({ viewPassword: "open123" }),
+      expect.any(Number),
+    );
+  });
+
+  it("잠금 켰는데 열람 비번이 없으면 400을 반환한다", async () => {
+    const res = await POST(
+      formReq({ name: "x", password: "pw", ttl: "7d", lock: "on", viewPassword: "" }, { name: "a.html", content: "<h1/>" }),
+    );
+    expect(res.status).toBe(400);
   });
 });
