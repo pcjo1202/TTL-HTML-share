@@ -1,6 +1,9 @@
 # Brainstorming visual-companion mockups
 .superpowers/
 
+# Claude Code worktrees
+.claude/worktrees/
+
 # Dependencies
 node_modules/
 
