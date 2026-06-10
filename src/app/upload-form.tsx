@@ -25,6 +25,8 @@ export default function UploadForm() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [ttl, setTtl] = useState("7d");
+  const [isCustomTtl, setIsCustomTtl] = useState(false);
+  const [customDays, setCustomDays] = useState(14);
   const [isLocked, setIsLocked] = useState(false);
   const [viewPassword, setViewPassword] = useState("");
   const [result, setResult] = useState<{ url: string } | null>(null);
@@ -64,7 +66,7 @@ export default function UploadForm() {
       fd.append("file", file);
       fd.append("name", name);
       fd.append("password", password);
-      fd.append("ttl", ttl);
+      fd.append("ttl", isCustomTtl ? `${customDays}d` : ttl);
       if (isLocked) {
         fd.append("lock", "on");
         fd.append("viewPassword", viewPassword);
@@ -151,8 +153,43 @@ export default function UploadForm() {
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="관리 비밀번호" className="rounded-xl border border-line bg-white px-4 py-3" />
         <div className="flex flex-wrap gap-2">
           {TTLS.map((t) => (
-            <button key={t.v} onClick={() => setTtl(t.v)} className={`rounded-lg px-4 py-2 text-sm font-medium ${ttl === t.v ? "bg-toss-blue text-white" : "bg-bg-2 text-ink-2"}`}>{t.label}</button>
+            <button
+              key={t.v}
+              onClick={() => { setIsCustomTtl(false); setTtl(t.v); }}
+              className={`rounded-lg px-4 py-2 text-sm font-medium ${!isCustomTtl && ttl === t.v ? "bg-toss-blue text-white" : "bg-bg-2 text-ink-2"}`}
+            >
+              {t.label}
+            </button>
           ))}
+          <button
+            onClick={() => setIsCustomTtl(true)}
+            className={`rounded-lg px-4 py-2 text-sm font-medium ${isCustomTtl ? "bg-toss-blue text-white" : "bg-bg-2 text-ink-2"}`}
+          >
+            직접 설정
+          </button>
+        </div>
+        <div
+          className="grid transition-[grid-template-rows] duration-300 ease-out"
+          style={{ gridTemplateRows: isCustomTtl ? "1fr" : "0fr" }}
+        >
+          <div className="overflow-hidden">
+            <div className="rounded-xl bg-bg-2 px-4 py-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-ink-2">유효기간</span>
+                <span className="rounded-lg bg-[#eef4ff] px-3 py-1 text-sm font-bold text-toss-blue-dark">
+                  {customDays}일 후 만료
+                </span>
+              </div>
+              <input
+                type="range"
+                min={1}
+                max={365}
+                value={customDays}
+                onChange={(e) => setCustomDays(Number(e.target.value))}
+                className="mt-3 w-full accent-toss-blue"
+              />
+            </div>
+          </div>
         </div>
 
         <label className="flex items-center gap-2 text-sm text-ink-2">
