@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import * as Dialog from "@radix-ui/react-dialog";
 import ManagePanel from "./manage-panel";
 import { useManageDrawer } from "./manage-drawer-context";
-import useMediaQuery from "./use-media-query";
+import useMediaQuery, { DESKTOP_MEDIA_QUERY } from "./use-media-query";
 
 export default function ManageDrawer() {
   const { openDoc, close } = useManageDrawer();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isDesktop = useMediaQuery(DESKTOP_MEDIA_QUERY);
   const router = useRouter();
   const isOpen = openDoc !== null;
 

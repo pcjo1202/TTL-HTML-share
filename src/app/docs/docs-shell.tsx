@@ -3,7 +3,7 @@
 import { type ReactNode } from "react";
 import { ManageDrawerProvider, useManageDrawer } from "./manage-drawer-context";
 import ManageDrawer from "./manage-drawer";
-import useMediaQuery from "./use-media-query";
+import useMediaQuery, { DESKTOP_MEDIA_QUERY } from "./use-media-query";
 
 export default function DocsShell({ children }: { children: ReactNode }) {
   return (
@@ -15,7 +15,7 @@ export default function DocsShell({ children }: { children: ReactNode }) {
 
 function DocsShellBody({ children }: { children: ReactNode }) {
   const { openDoc } = useManageDrawer();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isDesktop = useMediaQuery(DESKTOP_MEDIA_QUERY);
   const shouldPush = openDoc !== null && isDesktop;
 
   return (
