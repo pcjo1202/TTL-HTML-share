@@ -1,23 +1,27 @@
-export type TtlOption = "1d" | "7d" | "30d" | "never";
+export type TtlOption = "never" | `${number}d`;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-export const TTL_DURATIONS: Record<Exclude<TtlOption, "never">, number> = {
-  "1d": DAY_MS,
-  "7d": 7 * DAY_MS,
-  "30d": 30 * DAY_MS,
-};
+export const MAX_TTL_DAYS = 365;
 
-export function isValidTtl(value: string): value is TtlOption {
-  return value === "1d" || value === "7d" || value === "30d" || value === "never";
+export function parseTtl(value: string): number | "never" | null {
+  if (value === "never") return "never";
+  const match = /^([1-9]\d*)d$/.exec(value);
+  if (!match) return null;
+  const days = Number(match[1]);
+  if (days < 1 || days > MAX_TTL_DAYS) return null;
+  return days;
 }
 
-export function computeExpiresAt(
-  ttl: TtlOption,
-  now: number,
-): number | "never" {
-  if (ttl === "never") return "never";
-  return now + TTL_DURATIONS[ttl];
+export function isValidTtl(value: string): value is TtlOption {
+  return parseTtl(value) !== null;
+}
+
+export function computeExpiresAt(ttl: TtlOption, now: number): number | "never" {
+  const parsed = parseTtl(ttl);
+  if (parsed === "never") return "never";
+  if (parsed === null) throw new Error(`잘못된 TTL 값입니다: ${ttl}`);
+  return now + parsed * DAY_MS;
 }
 
 export function isExpired(expiresAt: number | "never", now: number): boolean {
