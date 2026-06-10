@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { listDocs } from "@/lib/store";
 import DocList from "./doc-list";
+import DocsShell from "./docs-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -18,10 +19,10 @@ export default async function DocsPage() {
   const { now, docs } = await loadDocs();
 
   return (
-    <main className="mx-auto max-w-2xl px-5 pt-10 pb-16">
+    <DocsShell>
       <h1 className="text-2xl font-bold">문서 목록</h1>
       <p className="mt-1 text-ink-3">등록된 문서 {docs.length}개</p>
       <DocList docs={docs} now={now} />
-    </main>
+    </DocsShell>
   );
 }

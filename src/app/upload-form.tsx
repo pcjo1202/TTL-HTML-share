@@ -2,6 +2,7 @@
 
 import { useRef, useState, type DragEvent } from "react";
 import { toast } from "sonner";
+import * as Switch from "@radix-ui/react-switch";
 import { clientErrorMessage } from "@/lib/error-message";
 import { htmlFileError, MAX_UPLOAD_BYTES } from "@/lib/upload-file";
 
@@ -25,6 +26,8 @@ export default function UploadForm() {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [ttl, setTtl] = useState("7d");
+  const [isCustomTtl, setIsCustomTtl] = useState(false);
+  const [customDays, setCustomDays] = useState(14);
   const [isLocked, setIsLocked] = useState(false);
   const [viewPassword, setViewPassword] = useState("");
   const [result, setResult] = useState<{ url: string } | null>(null);
@@ -64,7 +67,7 @@ export default function UploadForm() {
       fd.append("file", file);
       fd.append("name", name);
       fd.append("password", password);
-      fd.append("ttl", ttl);
+      fd.append("ttl", isCustomTtl ? `${customDays}d` : ttl);
       if (isLocked) {
         fd.append("lock", "on");
         fd.append("viewPassword", viewPassword);
@@ -151,17 +154,74 @@ export default function UploadForm() {
         <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="관리 비밀번호" className="rounded-xl border border-line bg-white px-4 py-3" />
         <div className="flex flex-wrap gap-2">
           {TTLS.map((t) => (
-            <button key={t.v} onClick={() => setTtl(t.v)} className={`rounded-lg px-4 py-2 text-sm font-medium ${ttl === t.v ? "bg-toss-blue text-white" : "bg-bg-2 text-ink-2"}`}>{t.label}</button>
+            <button
+              key={t.v}
+              onClick={() => { setIsCustomTtl(false); setTtl(t.v); }}
+              className={`rounded-lg px-4 py-2 text-sm font-medium ${!isCustomTtl && ttl === t.v ? "bg-toss-blue text-white" : "bg-bg-2 text-ink-2"}`}
+            >
+              {t.label}
+            </button>
           ))}
+          <button
+            onClick={() => setIsCustomTtl(true)}
+            className={`rounded-lg px-4 py-2 text-sm font-medium ${isCustomTtl ? "bg-toss-blue text-white" : "bg-bg-2 text-ink-2"}`}
+          >
+            직접 설정
+          </button>
+        </div>
+        <div
+          className="grid transition-[grid-template-rows] duration-300 ease-out"
+          style={{ gridTemplateRows: isCustomTtl ? "1fr" : "0fr" }}
+        >
+          <div className="overflow-hidden">
+            <div className="rounded-xl bg-bg-2 px-4 py-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-ink-2">유효기간</span>
+                <span className="rounded-lg bg-[#eef4ff] px-3 py-1 text-sm font-bold text-toss-blue-dark">
+                  {customDays}일 후 만료
+                </span>
+              </div>
+              <input
+                type="range"
+                min={1}
+                max={365}
+                value={customDays}
+                onChange={(e) => setCustomDays(Number(e.target.value))}
+                className="mt-3 w-full accent-toss-blue"
+              />
+            </div>
+          </div>
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-ink-2">
-          <input type="checkbox" checked={isLocked} onChange={(e) => setIsLocked(e.target.checked)} />
-          🔒 열람 잠금 (비밀번호 입력 후에만 열람)
-        </label>
-        {isLocked && (
-          <input type="password" value={viewPassword} onChange={(e) => setViewPassword(e.target.value)} placeholder="열람 비밀번호 (관리 비밀번호와 별개)" className="rounded-xl border border-line bg-white px-4 py-3" />
-        )}
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <label className="flex items-center justify-between gap-3">
+            <span className="flex flex-col">
+              <span className="text-sm font-semibold text-ink">🔒 열람 잠금</span>
+              <span className="text-xs text-ink-3">비밀번호를 입력해야 열람할 수 있습니다</span>
+            </span>
+            <Switch.Root
+              checked={isLocked}
+              onCheckedChange={(checked) => { setIsLocked(checked); if (!checked) setViewPassword(""); }}
+              className="relative h-7 w-12 shrink-0 rounded-full bg-line transition-colors data-[state=checked]:bg-toss-blue"
+            >
+              <Switch.Thumb className="block h-5 w-5 translate-x-1 rounded-full bg-white shadow transition-transform duration-200 data-[state=checked]:translate-x-6" />
+            </Switch.Root>
+          </label>
+          <div
+            className="grid transition-[grid-template-rows] duration-300 ease-out"
+            style={{ gridTemplateRows: isLocked ? "1fr" : "0fr" }}
+          >
+            <div className="overflow-hidden">
+              <input
+                type="password"
+                value={viewPassword}
+                onChange={(e) => setViewPassword(e.target.value)}
+                placeholder="열람 비밀번호 (관리 비밀번호와 별개)"
+                className="mt-3 w-full rounded-xl border border-line bg-white px-4 py-3"
+              />
+            </div>
+          </div>
+        </div>
 
         <button onClick={submit} disabled={busy} className="mt-2 rounded-xl bg-toss-blue py-3 font-semibold text-white disabled:opacity-50">
           {busy ? "생성 중…" : "링크 생성하기"}
