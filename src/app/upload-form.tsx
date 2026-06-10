@@ -2,6 +2,7 @@
 
 import { useRef, useState, type DragEvent } from "react";
 import { toast } from "sonner";
+import * as Switch from "@radix-ui/react-switch";
 import { clientErrorMessage } from "@/lib/error-message";
 import { htmlFileError, MAX_UPLOAD_BYTES } from "@/lib/upload-file";
 
@@ -192,13 +193,35 @@ export default function UploadForm() {
           </div>
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-ink-2">
-          <input type="checkbox" checked={isLocked} onChange={(e) => setIsLocked(e.target.checked)} />
-          🔒 열람 잠금 (비밀번호 입력 후에만 열람)
-        </label>
-        {isLocked && (
-          <input type="password" value={viewPassword} onChange={(e) => setViewPassword(e.target.value)} placeholder="열람 비밀번호 (관리 비밀번호와 별개)" className="rounded-xl border border-line bg-white px-4 py-3" />
-        )}
+        <div className="rounded-xl border border-line bg-white px-4 py-3">
+          <label className="flex items-center justify-between gap-3">
+            <span className="flex flex-col">
+              <span className="text-sm font-semibold text-ink">🔒 열람 잠금</span>
+              <span className="text-xs text-ink-3">비밀번호를 입력해야 열람할 수 있습니다</span>
+            </span>
+            <Switch.Root
+              checked={isLocked}
+              onCheckedChange={(checked) => { setIsLocked(checked); if (!checked) setViewPassword(""); }}
+              className="relative h-7 w-12 shrink-0 rounded-full bg-line transition-colors data-[state=checked]:bg-toss-blue"
+            >
+              <Switch.Thumb className="block h-5 w-5 translate-x-1 rounded-full bg-white shadow transition-transform duration-200 data-[state=checked]:translate-x-6" />
+            </Switch.Root>
+          </label>
+          <div
+            className="grid transition-[grid-template-rows] duration-300 ease-out"
+            style={{ gridTemplateRows: isLocked ? "1fr" : "0fr" }}
+          >
+            <div className="overflow-hidden">
+              <input
+                type="password"
+                value={viewPassword}
+                onChange={(e) => setViewPassword(e.target.value)}
+                placeholder="열람 비밀번호 (관리 비밀번호와 별개)"
+                className="mt-3 w-full rounded-xl border border-line bg-white px-4 py-3"
+              />
+            </div>
+          </div>
+        </div>
 
         <button onClick={submit} disabled={busy} className="mt-2 rounded-xl bg-toss-blue py-3 font-semibold text-white disabled:opacity-50">
           {busy ? "생성 중…" : "링크 생성하기"}
